@@ -143,5 +143,13 @@ See `AGENTS.md` for the directory tree, conventions, and design decisions.
 
 ## Deployment
 
-- **Primary**: Oracle Cloud ARM Free Tier via GitHub Actions (`deploy-oracle.yml`).
+- **Primary**: Oracle Cloud ARM Free Tier (Always Free `VM.Standard.A1.Flex`, 2 OCPU /
+  12 GB) via GitHub Actions (`deploy-oracle.yml`).
+- `scripts/deploy_oracle.sh` provisions the VM on first deploy: Ollama, venv, systemd
+  units (`lebowski-api` on `127.0.0.1:8000`, `lebowski-ui` on `127.0.0.1:8501`), nginx
+  with HTTPS + WebSocket/SSE proxying (Streamlit DB), certbot, ufw, and a DuckDNS cron
+  to keep the domain pointed at the instance.
+- Required GitHub secrets: `ORACLE_HOST`, `ORACLE_USER`, `ORACLE_SSH_PRIVATE_KEY`,
+  `ORACLE_DOMAIN` (the DuckDNS name, e.g. `lebowski.duckdns.org`), `DUCKDNS_TOKEN`.
+- The workflow stays disabled until those secrets exist.
 - **Extra demo**: Hugging Face Spaces (quote finder).

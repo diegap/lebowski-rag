@@ -66,7 +66,8 @@ lebowski-rag/
 ## Configuración
 
 Config vía variables de entorno (`.env`, ver `.env.example`):
-`OLLAMA_HOST`, `DB_PATH`, `MODEL` (default `llama3.2:3b`), `EMBED_MODEL` (default `nomic-embed-text`).
+`OLLAMA_HOST`, `DB_PATH`, `MODEL` (default `llama3.2:3b`), `EMBED_MODEL` (default `nomic-embed-text`),
+`API_URL` (default `http://localhost:8000`).
 
 ## Convenciones
 
@@ -91,15 +92,19 @@ Config vía variables de entorno (`.env`, ver `.env.example`):
 - **PDF excluido** del control de versiones por derechos del guion.
 - **Python de punta a punta** (FastAPI + ChromaDB + Streamlit) en lugar de Kotlin: es el
   estándar del ecosistema RAG y el objetivo del proyecto es aprender RAG, no backend JVM.
-- **Despliegue principal**: Oracle Cloud ARM Free Tier (24 GB RAM) vía GitHub Actions.
+- **Despliegue principal**: Oracle Cloud ARM Free Tier (2 OCPU / 12 GB, `A1.Flex`) vía
+  GitHub Actions. `scripts/deploy_oracle.sh` provisiona la VM (Ollama, systemd para API y
+  UI, nginx HTTPS + WebSocket → Streamlit, certbot, ufw, cron DuckDNS). Dominio DuckDNS.
   Extra: Hugging Face Spaces como demo del quote finder.
 
 ## CI / Despliegue
 
 - `ci.yml`: en cada push, lint + smoke test de retrieval/keywords (sin Ollama en runners).
 - `deploy-oracle.yml`: `workflow_dispatch` + push a `main`; despliega a Oracle ARM vía SSH
-  (pull, setup Ollama/modelos, reinicio de FastAPI + Streamlit por systemd). Deshabilitado
-  hasta que existan los secretos de la VM Oracle.
+  (scp de `app`/`src`/scripts, provisionamiento con `scripts/deploy_oracle.sh`, reinicio de
+  FastAPI + Streamlit por systemd). Deshabilitado hasta que existan los secretos de la VM
+  Oracle (`ORACLE_HOST`, `ORACLE_USER`, `ORACLE_SSH_PRIVATE_KEY`, `ORACLE_DOMAIN`,
+  `DUCKDNS_TOKEN`).
 
 ## Gestión de sesiones
 

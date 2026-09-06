@@ -6,6 +6,7 @@ on:
     branches: [main]
     paths:
       - 'app/**'
+      - 'src/**'
       - 'ingest.py'
       - 'requirements.txt'
       - 'scripts/**'
@@ -24,20 +25,16 @@ jobs:
           host: ${{ secrets.ORACLE_HOST }}
           username: ${{ secrets.ORACLE_USER }}
           key: ${{ secrets.ORACLE_SSH_PRIVATE_KEY }}
-          source: "app,ingest.py,requirements.txt,scripts,.env.example"
+          source: "app,src,ingest.py,requirements.txt,scripts,.env.example"
           target: "/home/${{ secrets.ORACLE_USER }}/lebowski-rag"
 
-      - name: Setup and restart on Oracle VM
+      - name: Provision / restart on Oracle VM
         uses: appleboy/ssh-action@v1.0.3
         with:
           host: ${{ secrets.ORACLE_HOST }}
           username: ${{ secrets.ORACLE_USER }}
           key: ${{ secrets.ORACLE_SSH_PRIVATE_KEY }}
+          envs: ORACLE_DOMAIN,DUCKDNS_TOKEN
           script: |
-            cd /home/${{ secrets.ORACLE_USER }}/lebowski-rag
-            [ -f .env ] || cp .env.example .env
-            bash scripts/setup.sh
-            python3 -m venv .venv
-            .venv/bin/pip install -r requirements.txt
-            .venv/bin/python ingest.py || true
-            sudo systemctl restart lebowski-api lebowski-ui || true
+            [ -f .env ] || cp /home/${{ secrets.ORACLE_USER }}/lebowski-rag/.env.example /home/${{ secrets.ORACLE_USER }}/lebowski-rag/.env
+            bash /home/${{ secrets.ORACLE_USER }}/lebowski-rag/scripts/deploy_oracle.sh

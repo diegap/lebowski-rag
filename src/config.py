@@ -11,3 +11,4 @@ class Settings(BaseSettings):
     MODEL: str = "llama3.2:3b"
     EMBED_MODEL: str = "nomic-embed-text"
     PDF: str = str(Path("data/thebiglebowski.pdf"))
+    API_URL: str = "http://localhost:8000"

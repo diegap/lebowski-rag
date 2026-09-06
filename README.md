@@ -113,10 +113,29 @@ curl -N -X POST http://localhost:8000/chat \
 Each token arrives as SSE: `data: {"token": "..."}`, ending with
 `data: [DONE]`.
 
+## UI (Streamlit)
+
+The UI connects to the API — both must be running.
+
+```bash
+# Terminal 1: API
+uvicorn app.main:app --reload     # http://localhost:8000
+
+# Terminal 2: UI
+streamlit run app/ui.py           # http://localhost:8501
+```
+
+Two tabs:
+
+- **Quote finder**: semantic search with filters (top_k, character, only The Dude).
+- **Chat with El Dude**: conversational chat with streaming, backed by the script.
+
+For production (Oracle), set `API_URL` in `.env` to point to the API endpoint.
+
 ## Configuration
 
 Environment variables in `.env` (see `.env.example`):
-`OLLAMA_HOST`, `DB_PATH`, `MODEL` (default `llama3.2:3b`), `EMBED_MODEL` (default `nomic-embed-text`).
+`OLLAMA_HOST`, `DB_PATH`, `MODEL` (default `llama3.2:3b`), `EMBED_MODEL` (default `nomic-embed-text`), `API_URL` (default `http://localhost:8000`).
 
 ## Structure
 

@@ -34,9 +34,14 @@ lebowski-rag/
 ├── data/
 │   ├── .gitkeep
 │   └── thebiglebowski.pdf   # NO versionado (añadir manualmente)
+├── ingest.py                # orquestación de ingesta (parser -> embeddings -> ChromaDB)
 ├── src/
-│   └── pdf_loader.py        # extraer texto Final Draft -> escenas/personajes
+│   ├── config.py            # Settings desde .env (OLLAMA_HOST, DB_PATH, MODEL, EMBED_MODEL)
+│   ├── embeddings.py        # OllamaEmbedder: embed_documents() / embed_query()
+│   ├── store.py             # QuoteStore (index/search/count) + QuoteHit; contrato cliente-agnóstico
+│   └── pdf_loader.py        # extraer texto Final Draft -> escenas/turnos de diálogo
 ├── scripts/
+│   ├── search.py            # demo CLI de retrieval (previo a la API)
 │   ├── setup.sh             # ollama pull de modelos
 │   └── deploy_oracle.sh     # pasos para Oracle ARM (systemd, nginx, HTTPS)
 ├── app/
@@ -52,7 +57,9 @@ lebowski-rag/
 
 - **Setup de modelos**: `bash scripts/setup.sh` (instala/actualiza Ollama + pull de
   `llama3.2:3b` y `nomic-embed-text`).
-- **Ingesta**: `python ingest.py` (PDF -> chunks por escena -> embeddings -> ChromaDB).
+- **Ingesta**: `python ingest.py` (PDF -> turnos de diálogo -> embeddings -> ChromaDB).
+- **Retrieval (demo CLI, previo a la API)**: `python scripts/search.py "that rug really tied
+  the room together"` (flags: `-n/--top`, `-d/--dude`, `-c/--character`).
 - **API**: `uvicorn app.main:app --reload`
 - **UI**: `streamlit run app/ui.py`
 
@@ -69,8 +76,15 @@ Config vía variables de entorno (`.env`, ver `.env.example`):
 
 ## Decisiones registradas (ADR breve)
 
-- **ChromaDB** como vector store por sencillez a esta escala (~500 chunks); FAISS sería
-  overkill.
+- **ChromaDB** como vector store por sencillez a esta escala (1271 turnos de diálogo en la
+  colección `quotes`); FAISS sería overkill.
+- **Capa de dominio cliente-agnóstica en `src/`**: `QuoteStore` (con `OllamaEmbedder`
+  inyectado) es el único contrato que usan CLI (`scripts/search.py`), API (`app/main.py`) y
+  UI (`app/ui.py`). Los clientes son capas de presentación delgadas; el embedder inyectado
+  permite testear la búsqueda sin Ollama.
+- **Chunking por turno de diálogo** (con metadatos `character`, `heading`, `scene`,
+  `is_dude`) en lugar de escena completa: recuperación afilada para el quote finder y
+  filtro por personaje (p. ej. solo El Dude).
 - **`llama3.2:3b`** único LLM por fluidez; el fallback 8b se descartó pero es trivial de
   reintroducir.
 - **Historial de chat en memoria/sesión** (MVP), sin persistencia.

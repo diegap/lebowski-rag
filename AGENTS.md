@@ -86,3 +86,16 @@ Config vía variables de entorno (`.env`, ver `.env.example`):
 - `deploy-oracle.yml`: `workflow_dispatch` + push a `main`; despliega a Oracle ARM vía SSH
   (pull, setup Ollama/modelos, reinicio de FastAPI + Streamlit por systemd). Deshabilitado
   hasta que existan los secretos de la VM Oracle.
+
+## Gestión de sesiones
+
+Avisar al usuario cada vez que sea conveniente iniciar una nueva sesión, para no saturar el
+contexto. Momentos típicos para avisar:
+
+- Al iniciar una fase nueva e independiente del proyecto (p. ej. pasar del bootstrap a la
+  Fase 1 del pipeline de ingesta).
+- Cuando la conversación actual se ha vuelto larga o repite mucho contexto.
+- Antes de tareas pesadas que requieran cargar mucho código/mensajes en contexto.
+
+Avisar de forma breve, indicando qué se hará en la nueva sesión y por qué conviene una
+sesión limpia.

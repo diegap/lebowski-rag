@@ -63,6 +63,56 @@ python scripts/search.py "am I the only one around here" -c WALTER
 python scripts/search.py "nihilists" -n 10
 ```
 
+## API
+
+Run the server with `uvicorn app.main:app --reload` (default `http://localhost:8000`).
+Interactive docs at `http://localhost:8000/docs`.
+
+### `GET /health`
+
+```
+curl http://localhost:8000/health
+# {"status":"ok","turns":1271}
+```
+
+### `GET /search`
+
+Semantic quote finder. Query params: `q` (required), `top_k` (default 5, 1–20),
+`character`, `dude_only`.
+
+```
+curl "http://localhost:8000/search?q=that+rug+really+tied+the+room+together&top_k=3"
+```
+
+```json
+{
+  "query": "that rug really tied the room together",
+  "results": [
+    {
+      "scene": 6,
+      "heading": "INT. DUDE'S BUNGALOW - DAY",
+      "character": "DUDE",
+      "text": "That rug really tied the room together, did it not?",
+      "distance": 0.35
+    }
+  ]
+}
+```
+
+### `POST /chat`
+
+Streaming chat with The Dude (SSE). Body: `message` (required), `top_k`,
+`character`, `dude_only`.
+
+```
+curl -N -X POST http://localhost:8000/chat \
+  -H "Content-Type: application/json" \
+  -d '{"message": "What happened to your rug, man?"}'
+```
+
+Each token arrives as SSE: `data: {"token": "..."}`, ending with
+`data: [DONE]`.
+
 ## Configuration
 
 Environment variables in `.env` (see `.env.example`):

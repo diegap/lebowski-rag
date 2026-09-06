@@ -1,0 +1,24 @@
+# Dependencias de Python
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+env/
+
+# Configuración y secretos
+.env
+.env.local
+
+# Datos y artefactos
+data/*.pdf
+data/*.txt
+db/
+*.chroma
+*.pickle
+
+# Sistema
+.DS_Store
+
+# Notebooks / temp
+.ipynb_checkpoints/
+*.log

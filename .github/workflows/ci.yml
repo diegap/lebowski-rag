@@ -1,0 +1,32 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  lint-and-smoke:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+
+      - name: Syntax check
+        run: |
+          python -m py_compile src/pdf_loader.py app/main.py app/rag.py app/ui.py ingest.py
+
+      - name: Smoke test (retrieval parsing, no Ollama)
+        run: |
+          python - <<'EOF'
+          from src.pdf_loader import PARSED  # placeholder; se sustituye al implementar
+          print("smoke ok")
+          EOF

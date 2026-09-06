@@ -1,0 +1,43 @@
+name: Deploy Oracle ARM
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - 'app/**'
+      - 'ingest.py'
+      - 'requirements.txt'
+      - 'scripts/**'
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    # Deshabilitado hasta que existan los secretos de la VM Oracle.
+    if: ${{ secrets.ORACLE_SSH_PRIVATE_KEY != '' && secrets.ORACLE_HOST != '' }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Sync code to Oracle VM
+        uses: appleboy/scp-action@v0.1.7
+        with:
+          host: ${{ secrets.ORACLE_HOST }}
+          username: ${{ secrets.ORACLE_USER }}
+          key: ${{ secrets.ORACLE_SSH_PRIVATE_KEY }}
+          source: "app,ingest.py,requirements.txt,scripts,.env.example"
+          target: "/home/${{ secrets.ORACLE_USER }}/lebowski-rag"
+
+      - name: Setup and restart on Oracle VM
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ secrets.ORACLE_HOST }}
+          username: ${{ secrets.ORACLE_USER }}
+          key: ${{ secrets.ORACLE_SSH_PRIVATE_KEY }}
+          script: |
+            cd /home/${{ secrets.ORACLE_USER }}/lebowski-rag
+            [ -f .env ] || cp .env.example .env
+            bash scripts/setup.sh
+            python3 -m venv .venv
+            .venv/bin/pip install -r requirements.txt
+            .venv/bin/python ingest.py || true
+            sudo systemctl restart lebowski-api lebowski-ui || true

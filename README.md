@@ -44,6 +44,25 @@ uvicorn app.main:app --reload     # http://localhost:8000
 streamlit run app/ui.py           # http://localhost:8501
 ```
 
+## Quote finder CLI
+
+```bash
+# Célebre quote
+python scripts/search.py "that rug really tied the room together"
+
+# Fuzzy / non-literal match
+python scripts/search.py "flying rugs"
+
+# Only The Dude's lines
+python scripts/search.py "take it easy" -d
+
+# Filter by character
+python scripts/search.py "am I the only one around here" -c WALTER
+
+# Top 10 results
+python scripts/search.py "nihilists" -n 10
+```
+
 ## Configuration
 
 Environment variables in `.env` (see `.env.example`):

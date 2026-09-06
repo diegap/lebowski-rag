@@ -24,9 +24,29 @@ jobs:
         run: |
           python -m py_compile src/pdf_loader.py app/main.py app/rag.py app/ui.py ingest.py
 
-      - name: Smoke test (retrieval parsing, no Ollama)
+      - name: Smoke test (parser, no Ollama ni PDF)
         run: |
           python - <<'EOF'
-          from src.pdf_loader import PARSED  # placeholder; se sustituye al implementar
-          print("smoke ok")
+          from src.pdf_loader import parse_layout
+
+          FIXTURE = "\n".join([
+              "EXT. CALIFORNIA DESERT - DAY",
+              "We float up a steep scrubby slope.",
+              "                         VOICE-OVER",
+              "            A way out west there was this fella.",
+              "INT. DUDE'S BUNGALOW - CONTINUOUS",
+              "His head is plunged into the toilet.",
+              "                         DUDE",
+              "            Nobody calls me Lebowski. I'm the Dude, man.",
+              "                         BLOND MAN",
+              "            See, you see what happens, Lebowski?",
+          ])
+
+          turns = parse_layout([FIXTURE])
+          assert len(turns) == 3, turns
+          assert turns[0].character == "VOICE-OVER"
+          assert turns[1].character == "DUDE" and turns[1].speaker_is_dude
+          assert turns[1].scene == turns[2].scene == 2
+          assert "golfer" not in " ".join(t.text for t in turns)
+          print(f"smoke ok ({len(turns)} turnos)")
           EOF

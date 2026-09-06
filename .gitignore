@@ -15,6 +15,7 @@ data/*.txt
 db/
 *.chroma
 *.pickle
+:memory:.ses
 
 # Sistema
 .DS_Store

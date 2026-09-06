@@ -1,43 +1,42 @@
 # lebowski-rag
 
-Side-project para portfolio y para aprender RAG. Servicio RAG sobre el guion de
-"The Big Lebowski" (stack 100% opensource).
+RAG-based service over the script of "The Big Lebowski", built with an open-source stack.
 
-## Funciones
+## Features
 
-- **Quote finder**: búsqueda semántica de citas del guion con contexto (personaje, escena).
-- **Chat con El Dude**: conversación con la personalidad de El Dude, apoyándose en el guion
-  (RAG: contexto recuperado + generación).
+- **Quote finder**: semantic search for script quotes with context (character, scene).
+- **Chat with The Dude**: converse with The Dude's personality, backed by the script
+  (RAG: retrieved context + generation).
 
 ## Stack
 
-| Capa        | Herramienta                  |
-|-------------|------------------------------|
-| LLM         | `llama3.2:3b` vía Ollama     |
-| Embeddings  | `nomic-embed-text` (Ollama)  |
-| Vector DB   | ChromaDB (local, `db/`)      |
-| API         | FastAPI (SSE en `/chat`)     |
-| Frontend    | Streamlit (2 pestañas)       |
+| Layer       | Tool                        |
+|-------------|-----------------------------|
+| LLM         | `llama3.2:3b` via Ollama    |
+| Embeddings  | `nomic-embed-text` (Ollama) |
+| Vector DB   | ChromaDB (local, `db/`)     |
+| API         | FastAPI (SSE on `/chat`)    |
+| Frontend    | Streamlit (2 tabs)          |
 
-## Requisitos
+## Requirements
 
-- macOS (Apple Silicon) o Linux, con Ollama instalado.
+- macOS (Apple Silicon) or Linux, with Ollama installed.
 - Python 3.10+.
 
-## Puesta en marcha local
+## Local setup
 
 ```bash
-# 1. Modelos
+# 1. Models
 bash scripts/setup.sh
 
-# 2. Dependencias
+# 2. Dependencies
 python -m venv .venv && source .venv/bin/activate
 pip install -r requirements.txt
 
-# 3. Añadir el guion (no se versiona)
-#    Copia data/thebiglebowski.pdf al directorio data/ (manual, por derechos del guion).
+# 3. Add the script (not versioned)
+#    Copy data/thebiglebowski.pdf into the data/ directory (manual, due to script rights).
 
-# 4. Ingesta
+# 4. Ingest
 python ingest.py
 
 # 5. API + UI
@@ -45,16 +44,16 @@ uvicorn app.main:app --reload     # http://localhost:8000
 streamlit run app/ui.py           # http://localhost:8501
 ```
 
-## Configuración
+## Configuration
 
-Variables de entorno en `.env` (ver `.env.example`):
+Environment variables in `.env` (see `.env.example`):
 `OLLAMA_HOST`, `DB_PATH`, `MODEL` (default `llama3.2:3b`), `EMBED_MODEL` (default `nomic-embed-text`).
 
-## Estructura
+## Structure
 
-Ver `AGENTS.md` para el árbol de directorios, convenciones y decisiones de diseño.
+See `AGENTS.md` for the directory tree, conventions, and design decisions.
 
-## Despliegue
+## Deployment
 
-- **Principal**: Oracle Cloud ARM Free Tier vía GitHub Actions (`deploy-oracle.yml`).
-- **Demo extra**: Hugging Face Spaces (quote finder).
+- **Primary**: Oracle Cloud ARM Free Tier via GitHub Actions (`deploy-oracle.yml`).
+- **Extra demo**: Hugging Face Spaces (quote finder).
